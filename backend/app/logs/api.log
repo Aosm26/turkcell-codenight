@@ -1,0 +1,6 @@
+{"timestamp": "2026-01-14T18:44:10.367940Z", "level": "INFO", "logger": "api", "message": "🚀 Turkcell Smart Allocation API starting...", "module": "main", "function": "startup_event", "line": 155}
+{"timestamp": "2026-01-14T18:44:10.380964Z", "level": "INFO", "logger": "api", "message": "✅ API startup complete", "module": "main", "function": "startup_event", "line": 157}
+{"timestamp": "2026-01-14T18:44:26.720355Z", "level": "INFO", "logger": "api", "message": "🚀 Turkcell Smart Allocation API starting...", "module": "main", "function": "startup_event", "line": 155}
+{"timestamp": "2026-01-14T18:44:26.734555Z", "level": "INFO", "logger": "api", "message": "✅ API startup complete", "module": "main", "function": "startup_event", "line": 157}
+{"timestamp": "2026-01-14T18:45:33.205661Z", "level": "INFO", "logger": "api", "message": "🚀 Turkcell Smart Allocation API starting...", "module": "main", "function": "startup_event", "line": 155}
+{"timestamp": "2026-01-14T18:45:33.226880Z", "level": "INFO", "logger": "api", "message": "✅ API startup complete", "module": "main", "function": "startup_event", "line": 157}

@@ -1,0 +1,3 @@
+{"timestamp": "2026-01-14T18:44:10.380361Z", "level": "INFO", "logger": "database", "message": "Seed data already loaded, skipping...", "module": "main", "function": "load_seed_data", "line": 58}
+{"timestamp": "2026-01-14T18:44:26.733792Z", "level": "INFO", "logger": "database", "message": "Seed data already loaded, skipping...", "module": "main", "function": "load_seed_data", "line": 58}
+{"timestamp": "2026-01-14T18:45:33.226011Z", "level": "INFO", "logger": "database", "message": "Seed data already loaded, skipping...", "module": "main", "function": "load_seed_data", "line": 58}

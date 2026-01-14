@@ -32,6 +32,7 @@ services:
     volumes:
       - ./backend/app:/app
       - ./seed_data:/app/seed_data
+      - ./logs/backend:/app/logs
 
   frontend:
     build: ./frontend
@@ -44,6 +45,7 @@ services:
       - backend
     volumes:
       - ./frontend/app:/app
+      - ./logs/frontend:/app/logs
 
 volumes:
   postgres_data:

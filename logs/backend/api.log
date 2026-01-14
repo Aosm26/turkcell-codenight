@@ -1,0 +1,2 @@
+{"timestamp": "2026-01-14T18:47:20.699356Z", "level": "INFO", "logger": "api", "message": "🚀 Turkcell Smart Allocation API starting...", "module": "main", "function": "startup_event", "line": 155}
+{"timestamp": "2026-01-14T18:47:20.720760Z", "level": "INFO", "logger": "api", "message": "✅ API startup complete", "module": "main", "function": "startup_event", "line": 157}

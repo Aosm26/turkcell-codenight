@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, SessionLocal
-from models import User, Resource, Request, Allocation, AllocationRule
+from models import User, Resource, Request, AllocationRule
 from routers import requests, resources, allocations, dashboard, rules
+from middleware import RequestLoggingMiddleware
+from logging_config import api_logger, database_logger
 import csv
 import os
 from datetime import datetime
@@ -15,6 +17,9 @@ app = FastAPI(
     description="Dinamik Kaynak ve Öncelik Yönetim Platformu",
     version="1.0.0",
 )
+
+# Logging middleware (en dışta olmalı)
+app.add_middleware(RequestLoggingMiddleware)
 
 # CORS middleware
 app.add_middleware(
@@ -50,7 +55,7 @@ def load_seed_data():
     try:
         # Check if data already exists
         if db.query(User).count() > 0:
-            print("Seed data already loaded")
+            database_logger.info("Seed data already loaded, skipping...")
             return
 
         seed_dir = "/app/seed_data"
@@ -59,25 +64,31 @@ def load_seed_data():
         if not os.path.exists(seed_dir):
             seed_dir = "../seed_data"
         if not os.path.exists(seed_dir):
-            print("Seed data directory not found")
+            database_logger.warning("Seed data directory not found")
             return
+
+        database_logger.info(f"Loading seed data from: {seed_dir}")
 
         # Load users
         users_file = os.path.join(seed_dir, "users.csv")
         if os.path.exists(users_file):
             with open(users_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
+                users_count = 0
                 for row in reader:
                     user = User(
                         user_id=row["user_id"], name=row["name"], city=row["city"]
                     )
                     db.add(user)
+                    users_count += 1
+                database_logger.info(f"Loaded {users_count} users")
 
         # Load resources
         resources_file = os.path.join(seed_dir, "resources.csv")
         if os.path.exists(resources_file):
             with open(resources_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
+                resources_count = 0
                 for row in reader:
                     resource = Resource(
                         resource_id=row["resource_id"],
@@ -87,12 +98,15 @@ def load_seed_data():
                         status=row["status"],
                     )
                     db.add(resource)
+                    resources_count += 1
+                database_logger.info(f"Loaded {resources_count} resources")
 
         # Load requests
         requests_file = os.path.join(seed_dir, "requests.csv")
         if os.path.exists(requests_file):
             with open(requests_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
+                requests_count = 0
                 for row in reader:
                     req = Request(
                         request_id=row["request_id"],
@@ -106,12 +120,15 @@ def load_seed_data():
                         status="PENDING",
                     )
                     db.add(req)
+                    requests_count += 1
+                database_logger.info(f"Loaded {requests_count} requests")
 
         # Load allocation rules
         rules_file = os.path.join(seed_dir, "allocation_rules.csv")
         if os.path.exists(rules_file):
             with open(rules_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
+                rules_count = 0
                 for row in reader:
                     rule = AllocationRule(
                         rule_id=row["rule_id"],
@@ -120,12 +137,14 @@ def load_seed_data():
                         is_active=row["is_active"].lower() == "true",
                     )
                     db.add(rule)
+                    rules_count += 1
+                database_logger.info(f"Loaded {rules_count} allocation rules")
 
         db.commit()
-        print("Seed data loaded successfully")
+        database_logger.info("✅ Seed data loaded successfully")
 
     except Exception as e:
-        print(f"Error loading seed data: {e}")
+        database_logger.error(f"Error loading seed data: {e}", exc_info=True)
         db.rollback()
     finally:
         db.close()
@@ -133,4 +152,6 @@ def load_seed_data():
 
 @app.on_event("startup")
 async def startup_event():
+    api_logger.info("🚀 Turkcell Smart Allocation API starting...")
     load_seed_data()
+    api_logger.info("✅ API startup complete")

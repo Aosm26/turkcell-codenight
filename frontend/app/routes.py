@@ -1,26 +1,44 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import requests
 import os
+from logging_config import dashboard_logger
 
 app = Flask(__name__)
 app.secret_key = "turkcell-smart-allocation-2024"
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
+dashboard_logger.info(f"🚀 Flask Dashboard starting... API_URL={API_URL}")
+
 
 def api_get(endpoint):
     try:
+        dashboard_logger.debug(f"GET {API_URL}{endpoint}")
         response = requests.get(f"{API_URL}{endpoint}")
-        return response.json() if response.ok else []
-    except:
+        if response.ok:
+            return response.json()
+        dashboard_logger.warning(
+            f"API GET failed: {endpoint} -> {response.status_code}"
+        )
+        return []
+    except Exception as e:
+        dashboard_logger.error(f"API GET error: {endpoint} -> {e}")
         return []
 
 
 def api_post(endpoint, data=None):
     try:
+        dashboard_logger.debug(f"POST {API_URL}{endpoint} data={data}")
         response = requests.post(f"{API_URL}{endpoint}", json=data or {})
-        return response.json() if response.ok else None
-    except:
+        if response.ok:
+            dashboard_logger.info(f"API POST success: {endpoint}")
+            return response.json()
+        dashboard_logger.warning(
+            f"API POST failed: {endpoint} -> {response.status_code}"
+        )
+        return None
+    except Exception as e:
+        dashboard_logger.error(f"API POST error: {endpoint} -> {e}")
         return None
 
 
