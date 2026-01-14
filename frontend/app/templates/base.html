@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,141 +13,217 @@
             --turkcell-dark: #1a1a2e;
             --turkcell-blue: #0f3460;
         }
-        
+
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .navbar {
             background: linear-gradient(135deg, var(--turkcell-dark) 0%, var(--turkcell-blue) 100%);
         }
-        
+
         .navbar-brand {
             color: var(--turkcell-yellow) !important;
             font-weight: bold;
         }
-        
+
         .nav-link {
             color: #fff !important;
         }
-        
-        .nav-link:hover {
+
+        .nav-link:hover,
+        .nav-link.active {
             color: var(--turkcell-yellow) !important;
         }
-        
+
         .card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s;
         }
-        
+
         .card:hover {
             transform: translateY(-2px);
         }
-        
+
         .stat-card {
             background: linear-gradient(135deg, var(--turkcell-dark) 0%, var(--turkcell-blue) 100%);
             color: white;
         }
-        
+
         .stat-card .stat-value {
             font-size: 2.5rem;
             font-weight: bold;
             color: var(--turkcell-yellow);
         }
-        
-        .badge-high { background-color: #dc3545; }
-        .badge-medium { background-color: #ffc107; color: #000; }
-        .badge-low { background-color: #28a745; }
-        
+
+        .badge-high {
+            background-color: #dc3545;
+        }
+
+        .badge-medium {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .badge-low {
+            background-color: #28a745;
+        }
+
         .btn-turkcell {
             background-color: var(--turkcell-yellow);
             border-color: var(--turkcell-yellow);
             color: #000;
             font-weight: 600;
         }
-        
+
         .btn-turkcell:hover {
             background-color: #e6b326;
             border-color: #e6b326;
             color: #000;
         }
-        
+
         .progress {
             height: 10px;
             border-radius: 5px;
         }
-        
+
         .table {
             border-radius: 8px;
             overflow: hidden;
         }
-        
+
         .table thead {
             background-color: var(--turkcell-dark);
             color: white;
         }
+
+        .user-badge {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .admin-badge {
+            background-color: var(--turkcell-yellow);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
                 <i class="bi bi-lightning-charge-fill"></i> Turkcell Smart Allocation
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                {% if current_user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    {% if current_user.is_admin %}
+                    <!-- ADMIN MENU -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('requests_page') }}">
+                        <a class="nav-link" href="{{ url_for('admin_requests') }}">
                             <i class="bi bi-inbox-fill"></i> Talepler
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('resources_page') }}">
+                        <a class="nav-link" href="{{ url_for('admin_resources') }}">
                             <i class="bi bi-people-fill"></i> Kaynaklar
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('allocations_page') }}">
+                        <a class="nav-link" href="{{ url_for('admin_allocations') }}">
                             <i class="bi bi-diagram-3-fill"></i> Atamalar
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('rules_page') }}">
+                        <a class="nav-link" href="{{ url_for('admin_rules') }}">
                             <i class="bi bi-gear-fill"></i> Kurallar
                         </a>
                     </li>
+                    {% else %}
+                    <!-- USER MENU -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_dashboard') }}">
+                            <i class="bi bi-house-fill"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_new_request') }}">
+                            <i class="bi bi-plus-circle-fill"></i> Yeni Talep
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_requests') }}">
+                            <i class="bi bi-list-check"></i> Taleplerim
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.name }}
+                            {% if current_user.is_admin %}
+                            <span class="admin-badge ms-1">Admin</span>
+                            {% else %}
+                            <span class="user-badge ms-1">Kullanıcı</span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text text-muted small">{{ current_user.user_id }}</span></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
 
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
-        
+
         {% block content %}{% endblock %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

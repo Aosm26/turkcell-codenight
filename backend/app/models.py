@@ -10,8 +10,25 @@ class User(Base):
     user_id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     city = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)  # For authentication
+    role = Column(String, default="USER")  # USER or ADMIN
 
     requests = relationship("Request", back_populates="user")
+    notifications = relationship("Notification", back_populates="user")
+
+
+class Notification(Base):
+    """Mock BiP notifications"""
+
+    __tablename__ = "notifications"
+
+    notification_id = Column(String, primary_key=True)
+    user_id = Column(String, ForeignKey("users.user_id"), nullable=False)
+    message = Column(String, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="notifications")
 
 
 class Resource(Base):

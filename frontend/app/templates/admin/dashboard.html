@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-speedometer2"></i> Yönetim Paneli</h2>
+    <form action="{{ url_for('admin_allocate') }}" method="post" class="d-inline">
+        <button type="submit" class="btn btn-turkcell">
+            <i class="bi bi-lightning-charge-fill"></i> Otomatik Atama Yap
+        </button>
+    </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-hourglass-split fs-3 opacity-75"></i>
+                <div class="stat-value">{{ summary.pending_requests if summary else 0 }}</div>
+                <small>Bekleyen Talepler</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle-fill fs-3 opacity-75"></i>
+                <div class="stat-value">{{ summary.active_allocations if summary else 0 }}</div>
+                <small>Aktif Atamalar</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill fs-3 opacity-75"></i>
+                <div class="stat-value">{{ summary.available_resources if summary else 0 }}</div>
+                <small>Uygun Kaynaklar</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up-arrow fs-3 opacity-75"></i>
+                <div class="stat-value">{{ "%.1f"|format(summary.resource_utilization|float) if summary else 0 }}%</div>
+                <small>Kaynak Kullanımı</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Requests -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-inbox-fill text-warning"></i> Bekleyen Talepler</h5>
+                <a href="{{ url_for('admin_requests') }}?status=PENDING" class="btn btn-sm btn-outline-primary">Tümü</a>
+            </div>
+            <div class="card-body">
+                {% if requests %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Hizmet</th>
+                                <th>Aciliyet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td><code>{{ req.request_id }}</code></td>
+                                <td>{{ req.service }}</td>
+                                <td><span class="badge badge-{{ req.urgency|lower }}">{{ req.urgency }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3"><i class="bi bi-check-circle"></i> Bekleyen talep yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-people-fill text-primary"></i> Kaynak Durumu</h5>
+                <a href="{{ url_for('admin_resources') }}" class="btn btn-sm btn-outline-primary">Detay</a>
+            </div>
+            <div class="card-body">
+                {% for res in resources %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ res.resource_id }}</strong>
+                        <span class="text-muted">{{ res.city }}</span>
+                    </div>
+                    <small class="text-muted">{{ res.resource_type }}</small>
+                    <div class="progress mt-1">
+                        {% set util = (res.active_allocations|default(0) / res.capacity * 100) if res.capacity > 0 else
+                        0 %}
+                        <div class="progress-bar bg-{{ 'danger' if util > 80 else 'warning' if util > 50 else 'success' }}"
+                            style="width: {{ util|int }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Allocations -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-diagram-3-fill text-success"></i> Son Atamalar</h5>
+        <a href="{{ url_for('admin_allocations') }}" class="btn btn-sm btn-outline-primary">Tümü</a>
+    </div>
+    <div class="card-body">
+        {% if allocations %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Atama ID</th>
+                        <th>Talep</th>
+                        <th>Kaynak</th>
+                        <th>Öncelik</th>
+                        <th>Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alloc in allocations %}
+                    <tr>
+                        <td><code>{{ alloc.allocation_id }}</code></td>
+                        <td>{{ alloc.request_id }}</td>
+                        <td>{{ alloc.resource_id }}</td>
+                        <td><span class="badge bg-primary">{{ "%.1f"|format(alloc.priority_score|float) }}</span></td>
+                        <td>{{ alloc.timestamp[:16].replace('T', ' ') if alloc.timestamp else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3">Henüz atama yapılmadı</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

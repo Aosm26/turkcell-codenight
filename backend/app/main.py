@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, SessionLocal
 from models import User, Resource, Request, AllocationRule
-from routers import requests, resources, allocations, dashboard, rules
+from routers import (
+    requests,
+    resources,
+    allocations,
+    dashboard,
+    rules,
+    auth,
+    notifications,
+)
 from middleware import RequestLoggingMiddleware
 from logging_config import api_logger, database_logger
 import csv
@@ -31,11 +39,13 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(requests.router)
 app.include_router(resources.router)
 app.include_router(allocations.router)
 app.include_router(dashboard.router)
 app.include_router(rules.router)
+app.include_router(notifications.router)
 
 
 @app.get("/")
@@ -72,12 +82,18 @@ def load_seed_data():
         # Load users
         users_file = os.path.join(seed_dir, "users.csv")
         if os.path.exists(users_file):
+            from auth import get_password_hash
+
             with open(users_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 users_count = 0
                 for row in reader:
                     user = User(
-                        user_id=row["user_id"], name=row["name"], city=row["city"]
+                        user_id=row["user_id"],
+                        name=row["name"],
+                        city=row["city"],
+                        password_hash=get_password_hash(row.get("password", "user123")),
+                        role=row.get("role", "USER"),
                     )
                     db.add(user)
                     users_count += 1

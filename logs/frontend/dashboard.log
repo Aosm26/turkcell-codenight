@@ -1,2 +1,14 @@
 {"timestamp": "2026-01-14T18:47:19.398729Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
 {"timestamp": "2026-01-14T18:47:19.748138Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:09:09.151066Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:09:09.496166Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:13:00.361958Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:13:00.655605Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:17:56.632437Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 12}
+{"timestamp": "2026-01-14T19:25:19.554875Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 12}
+{"timestamp": "2026-01-14T19:25:20.161404Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 12}
+{"timestamp": "2026-01-14T19:26:49.375374Z", "level": "INFO", "logger": "dashboard", "message": "API POST success: /auth/login", "module": "routes", "function": "api_post", "line": 57}
+{"timestamp": "2026-01-14T19:26:49.383055Z", "level": "INFO", "logger": "dashboard", "message": "✅ User logged in: admin (ADMIN)", "module": "routes", "function": "login", "line": 122}
+{"timestamp": "2026-01-14T19:27:17.109207Z", "level": "INFO", "logger": "dashboard", "message": "User logged out: admin", "module": "routes", "function": "logout", "line": 164}
+{"timestamp": "2026-01-14T19:28:02.021450Z", "level": "INFO", "logger": "dashboard", "message": "API POST success: /auth/login", "module": "routes", "function": "api_post", "line": 57}
+{"timestamp": "2026-01-14T19:28:02.026081Z", "level": "INFO", "logger": "dashboard", "message": "✅ User logged in: U1 (USER)", "module": "routes", "function": "login", "line": 122}

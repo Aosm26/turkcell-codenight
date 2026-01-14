@@ -1,5 +1,6 @@
-user_id,name,city
-U1,Ayşe,Istanbul
-U2,Ali,Ankara
-U3,Deniz,Izmir
-U4,Mert,Bursa
+user_id,name,city,password,role
+admin,Admin User,Istanbul,admin123,ADMIN
+U1,Ayşe,Istanbul,user123,USER
+U2,Ali,Ankara,user123,USER
+U3,Deniz,Izmir,user123,USER
+U4,Mert,Bursa,user123,USER
