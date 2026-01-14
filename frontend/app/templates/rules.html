@@ -3,7 +3,208 @@
 {% block title %}Kurallar - Turkcell Smart Allocation{% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-gear-fill"></i> Atama Kuralları</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-gear-fill"></i> Atama Kuralları</h2>
+    <div class="btn-group shadow-sm">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addVariableModal">
+            <i class="bi bi-calculator"></i> Değişken Oluşturucu
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRuleModal">
+            <i class="bi bi-plus-lg"></i> Yeni Kural Ekle
+        </button>
+    </div>
+</div>
+
+<!-- Add Variable Modal -->
+<div class="modal fade" id="addVariableModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Değişken Tanımla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addVariableForm">
+                    <div class="alert alert-info py-2 small">
+                        <i class="bi bi-info-circle"></i> Buradan oluşturduğunuz değişkenler, kural oluştururken "Alan
+                        Seç" listesine otomatik eklenir.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Değişken Adı</label>
+                        <input type="text" class="form-control" name="varName" placeholder="Örn: Risk_Skoru" required>
+                        <div class="form-text">Boşluk kullanmayınız (Örn: Toplam_Puan)</div>
+                    </div>
+
+                    <label class="form-label">Formül Oluşturucu (Hesap Makinesi Modu)</label>
+
+                    <!-- Calculator Keypad -->
+                    <div class="card p-2 mb-2 border-0 bg-light shadow-sm">
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <!-- Grouping -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-secondary font-monospace"
+                                    onclick="addToken('parenthesis', '(')">(</button>
+                                <button type="button" class="btn btn-secondary font-monospace"
+                                    onclick="addToken('parenthesis', ')')">)</button>
+                            </div>
+
+                            <!-- Operators -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-dark"
+                                    onclick="addToken('operator', '+')">+</button>
+                                <button type="button" class="btn btn-dark"
+                                    onclick="addToken('operator', '-')">-</button>
+                                <button type="button" class="btn btn-dark"
+                                    onclick="addToken('operator', '*')">x</button>
+                                <button type="button" class="btn btn-dark"
+                                    onclick="addToken('operator', '/')">/</button>
+                            </div>
+
+                            <!-- Data -->
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addToken('field')">
+                                <i class="bi bi-list-ul"></i> Alan Ekle
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addToken('constant')">
+                                <i class="bi bi-123"></i> Sayı Ekle
+                            </button>
+
+                            <!-- Clear -->
+                            <button type="button" class="btn btn-sm btn-danger ms-auto"
+                                onclick="document.getElementById('formulaContainer').innerHTML=''; updateFormulaPreview();">
+                                <i class="bi bi-eraser"></i> Temizle
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Formula Container (Display) -->
+                    <div class="card bg-white p-3 mb-3 border" style="min-height: 100px;">
+                        <div id="formulaContainer" class="d-flex flex-wrap gap-2 align-items-center">
+                            <!-- Tokens will be added here -->
+                            <span
+                                class="text-muted small fst-italic w-100 text-center user-select-none placeholder-text">
+                                Yukarıdaki butonları kullanarak formülü dizin...
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Live Formula Preview -->
+                    <div class="alert alert-warning d-flex align-items-center mb-3 py-2" role="alert">
+                        <i class="bi bi-eye-fill me-2"></i>
+                        <span id="formulaPreviewText" class="fw-bold text-dark font-monospace small">...</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <input type="text" class="form-control" name="description"
+                            placeholder="Örn: Aciliyet ve bekleme süresi toplamı">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="saveVariable()">Değişkeni Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Rule Modal -->
+<div class="modal fade" id="addRuleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Kural Oluştur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addRuleForm">
+                    <label class="form-label fw-bold small text-muted text-uppercase mb-2">Kural İnşa Et (Hesap Makinesi
+                        Modu)</label>
+                    <div class="card p-2 mb-2 border-0 bg-light shadow-sm">
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <!-- Field & Value -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-primary" onclick="addRuleToken('field')"><i
+                                        class="bi bi-list-ul"></i> Alan</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="addRuleToken('value')"><i
+                                        class="bi bi-123"></i> Değer</button>
+                            </div>
+
+                            <!-- Comparison Operators -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '==')">==</button>
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '!=')">!=</button>
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '>')">&gt;</button>
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '<')">&lt;</button>
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '>=')">&gt;=</button>
+                                <button type="button" class="btn btn-info text-white font-monospace"
+                                    onclick="addRuleToken('operator', '<=')">&lt;=</button>
+                            </div>
+
+                            <!-- Logic Gates -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-dark fw-bold"
+                                    onclick="addRuleToken('logic', 'AND')">AND</button>
+                                <button type="button" class="btn btn-dark fw-bold"
+                                    onclick="addRuleToken('logic', 'OR')">OR</button>
+                                <button type="button" class="btn btn-danger fw-bold"
+                                    onclick="addRuleToken('logic', 'NOT')">NOT</button>
+                            </div>
+
+                            <!-- Parentheses & Advanced -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-secondary font-monospace"
+                                    onclick="addRuleToken('parenthesis', '(')">(</button>
+                                <button type="button" class="btn btn-secondary font-monospace"
+                                    onclick="addRuleToken('parenthesis', ')')">)</button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    onclick="addRuleToken('logic', 'XOR')">XOR</button>
+                            </div>
+
+                            <!-- Clear -->
+                            <button type="button" class="btn btn-sm btn-danger ms-auto"
+                                onclick="document.getElementById('ruleContainer').innerHTML=''; updateRulePreview();">
+                                <i class="bi bi-eraser"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Rule Container (Display) -->
+                    <div class="card bg-white p-3 mb-3 border py-4" style="min-height: 80px;">
+                        <div id="ruleContainer" class="d-flex flex-wrap gap-2 align-items-center">
+                            <!-- Tokens will be added here -->
+                            <span
+                                class="text-muted small fst-italic w-100 text-center user-select-none placeholder-text-rule">
+                                Kuralı butonlara basarak dizin...
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="form-text mt-1 text-end" id="rulePreviewCondition">
+                        <span class="text-muted small">Önizleme:</span> <span
+                            class="font-monospace text-primary fw-bold" id="rulePreviewText">...</span>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label fw-bold">Ağırlık Puanı</label>
+                        <input type="number" class="form-control" name="weight" required min="-100" max="100"
+                            placeholder="Örn: 50">
+                        <div class="form-text">Bu kural sağlandığında eklenecek puan.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="saveRule()">Kuralı Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="card">
     <div class="card-header bg-white">
@@ -21,6 +222,7 @@
                         <th>Koşul</th>
                         <th>Ağırlık</th>
                         <th>Durum</th>
+                        <th class="text-end">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,6 +244,15 @@
                             </span>
                             {% endif %}
                         </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                onclick="editRule('{{ rule.rule_id }}', '{{ rule.weight }}', '{{ rule.is_active }}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteRule('{{ rule.rule_id }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -61,9 +272,22 @@
         <h5 class="mb-0">Öncelik Skoru Hesaplama</h5>
     </div>
     <div class="card-body">
-        <pre class="bg-light p-3 rounded"><code>priority_score = Σ(aktif_kural_ağırlıkları) + bekleme_süresi_bonusu
-
-Bekleme bonusu = min(bekleme_saati × 2, 20) puan</code></pre>
+        <div class="p-3 rounded bg-light">
+            <code>priority_score = </code>
+            {% for rule in rules %}
+            {% if rule.is_active %}
+            <span class="text-success" title="{{ rule.condition }}">
+                (<strong>{{ rule.weight }}</strong> if [{{ rule.condition }}])
+            </span>
+            {% if not loop.last %} + {% endif %}
+            {% endif %}
+            {% endfor %}
+            <span class="text-muted"> + bekleme_süresi_bonusu</span>
+        </div>
+        <div class="mt-2 small text-muted">
+            Bekleme bonusu = min(bekleme_saati × 2, 20) puan
+        </div>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/rules.js') }}"></script>
 {% endblock %}

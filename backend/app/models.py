@@ -64,3 +64,12 @@ class AllocationRule(Base):
     condition = Column(String, nullable=False)  # e.g., "urgency == 'HIGH'"
     weight = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
+
+
+class DerivedVariable(Base):
+    __tablename__ = "derived_variables"
+
+    variable_id = Column(String, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    formula = Column(String, nullable=False)  # Stored as "field1 + field2" etc.
+    description = Column(String)

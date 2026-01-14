@@ -85,6 +85,13 @@ class AllocationRuleUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 
+class AllocationRuleCreate(BaseModel):
+    rule_id: Optional[str] = None
+    condition: str
+    weight: int
+    is_active: bool = True
+
+
 # Dashboard Schemas
 class DashboardSummary(BaseModel):
     pending_requests: int
@@ -99,3 +106,21 @@ class DashboardSummary(BaseModel):
 class NotificationResponse(BaseModel):
     user_id: str
     message: str
+
+
+# Derived Variable Schemas
+class DerivedVariableBase(BaseModel):
+    name: str
+    formula: str
+    description: Optional[str] = None
+
+
+class DerivedVariableCreate(DerivedVariableBase):
+    pass
+
+
+class DerivedVariableResponse(DerivedVariableBase):
+    variable_id: str
+
+    class Config:
+        from_attributes = True

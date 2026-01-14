@@ -1,2 +1,4 @@
 {"timestamp": "2026-01-14T18:47:19.398729Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
 {"timestamp": "2026-01-14T18:47:19.748138Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:29:20.005689Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}
+{"timestamp": "2026-01-14T19:29:20.161635Z", "level": "INFO", "logger": "dashboard", "message": "🚀 Flask Dashboard starting... API_URL=http://backend:8000", "module": "routes", "function": "<module>", "line": 11}

@@ -2,4 +2,12 @@ rule_id,condition,weight,is_active
 AR-1,urgency == 'HIGH',50,True
 AR-2,urgency == 'MEDIUM',30,True
 AR-3,urgency == 'LOW',10,True
-AR-4,service == 'Superonline',20,True
+AR-4,request_type == 'CONNECTION_ISSUE',40,True
+AR-5,request_type == 'PAYMENT_PROBLEM',30,True
+AR-6,request_type == 'SPEED_COMPLAINT',25,True
+AR-7,request_type == 'STREAMING_ISSUE',20,True
+AR-8,service == 'Superonline',20,True
+AR-9,service == 'TV+',15,True
+AR-10,service == 'Paycell',15,True
+AR-11,waiting_hours > 24,20,True
+AR-12,waiting_hours > 48,40,True
