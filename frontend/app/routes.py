@@ -9,9 +9,14 @@ app.secret_key = os.getenv(
     "FLASK_SECRET_KEY", "default-flask-secret-change-in-production"
 )
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+API_URL = os.getenv("API_URL", "http://localhost:8000")  # Auth Service
+BUSINESS_URL = os.getenv(
+    "BUSINESS_SERVICE_URL", "http://localhost:8001"
+)  # Business Service
 
-dashboard_logger.info(f"🚀 Flask Dashboard starting... API_URL={API_URL}")
+dashboard_logger.info(
+    f"🚀 Flask Dashboard starting... API_URL={API_URL}, BUSINESS_URL={BUSINESS_URL}"
+)
 
 
 # ============ Helper Functions ============
@@ -64,6 +69,44 @@ def api_post(endpoint, data=None, auth=False, form_data=False):
         return None
     except Exception as e:
         dashboard_logger.error(f"API POST error: {endpoint} -> {e}")
+        return None
+
+
+def business_api_get(endpoint, auth=False):
+    """Make GET request to Business Service"""
+    try:
+        headers = get_auth_header() if auth else {}
+        dashboard_logger.debug(f"GET {BUSINESS_URL}{endpoint}")
+        response = requests.get(f"{BUSINESS_URL}{endpoint}", headers=headers)
+        if response.ok:
+            return response.json()
+        dashboard_logger.warning(
+            f"Business API GET failed: {endpoint} -> {response.status_code}"
+        )
+        return []
+    except Exception as e:
+        dashboard_logger.error(f"Business API GET error: {endpoint} -> {e}")
+        return []
+
+
+def business_api_post(endpoint, data=None, auth=False):
+    """Make POST request to Business Service"""
+    try:
+        headers = get_auth_header() if auth else {}
+        dashboard_logger.debug(f"POST {BUSINESS_URL}{endpoint}")
+        response = requests.post(
+            f"{BUSINESS_URL}{endpoint}", json=data or {}, headers=headers
+        )
+
+        if response.ok:
+            dashboard_logger.info(f"Business API POST success: {endpoint}")
+            return response.json()
+        dashboard_logger.warning(
+            f"Business API POST failed: {endpoint} -> {response.status_code}"
+        )
+        return None
+    except Exception as e:
+        dashboard_logger.error(f"Business API POST error: {endpoint} -> {e}")
         return None
 
 
@@ -208,7 +251,7 @@ def user_new_request():
             "request_type": request.form.get("request_type"),
             "urgency": request.form.get("urgency"),
         }
-        result = api_post("/requests", data, auth=True)
+        result = business_api_post("/requests", data, auth=True)
         if result:
             flash("Talebiniz başarıyla oluşturuldu!", "success")
             return redirect(url_for("user_dashboard"))
