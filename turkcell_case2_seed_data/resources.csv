@@ -1,0 +1,4 @@
+resource_id,resource_type,capacity,city,status
+RES-1,TECH_TEAM,2,Istanbul,AVAILABLE
+RES-2,SUPPORT_AGENT,3,Ankara,AVAILABLE
+RES-3,TECH_TEAM,1,Izmir,AVAILABLE

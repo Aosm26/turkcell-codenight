@@ -1,0 +1,3 @@
+allocation_id,request_id,resource_id,priority_score,status,timestamp
+AL-1,REQ-1,RES-1,90,ASSIGNED,2026-03-12T09:40:00Z
+AL-2,REQ-4,RES-1,85,ASSIGNED,2026-03-12T10:30:00Z
