@@ -5,7 +5,9 @@ import os
 from logging_config import dashboard_logger
 
 app = Flask(__name__)
-app.secret_key = "turkcell-smart-allocation-2024"
+app.secret_key = os.getenv(
+    "FLASK_SECRET_KEY", "default-flask-secret-change-in-production"
+)
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 

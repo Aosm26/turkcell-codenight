@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -9,10 +10,12 @@ from database import get_db
 from models import User
 from logging_config import api_logger
 
-# JWT Configuration
-SECRET_KEY = "turkcell-smart-allocation-secret-key-2024"  # In production, use env var
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+# JWT Configuration from environment variables
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "default-dev-secret-key-change-in-production")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("JWT_EXPIRE_MINUTES", "1440")
+)  # 24 hours default
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
