@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Yeni Talep - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="bi bi-plus-circle-fill text-primary"></i> Yeni Destek Talebi</h2>
+        <p class="text-muted">Turkcell hizmetleri için destek talebinizi aşağıdaki formu doldurarak oluşturabilirsiniz.
+        </p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Hizmet Seçin</label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="service" id="superonline"
+                                    value="Superonline" required>
+                                <label class="btn btn-outline-primary w-100 py-3" for="superonline">
+                                    <i class="bi bi-wifi fs-3 d-block mb-1"></i>
+                                    Superonline
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="service" id="paycell" value="Paycell">
+                                <label class="btn btn-outline-primary w-100 py-3" for="paycell">
+                                    <i class="bi bi-credit-card fs-3 d-block mb-1"></i>
+                                    Paycell
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="service" id="tvplus" value="TV+">
+                                <label class="btn btn-outline-primary w-100 py-3" for="tvplus">
+                                    <i class="bi bi-tv fs-3 d-block mb-1"></i>
+                                    TV+
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Talep Türü</label>
+                        <select name="request_type" class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="CONNECTION_ISSUE">Bağlantı Sorunu</option>
+                            <option value="PAYMENT_PROBLEM">Ödeme Sorunu</option>
+                            <option value="SERVICE_UPGRADE">Hizmet Yükseltme</option>
+                            <option value="TECHNICAL_SUPPORT">Teknik Destek</option>
+                            <option value="BILLING_INQUIRY">Fatura Sorgusu</option>
+                            <option value="OTHER">Diğer</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Aciliyet Durumu</label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="urgency" id="high" value="HIGH" required>
+                                <label class="btn btn-outline-danger w-100" for="high">
+                                    <i class="bi bi-exclamation-triangle"></i> Yüksek
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="urgency" id="medium" value="MEDIUM">
+                                <label class="btn btn-outline-warning w-100" for="medium">
+                                    <i class="bi bi-dash-circle"></i> Orta
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="urgency" id="low" value="LOW">
+                                <label class="btn btn-outline-success w-100" for="low">
+                                    <i class="bi bi-check-circle"></i> Düşük
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> İptal
+                        </a>
+                        <button type="submit" class="btn btn-turkcell btn-lg px-5">
+                            <i class="bi bi-send"></i> Talebi Gönder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

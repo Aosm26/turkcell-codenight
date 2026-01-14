@@ -83,15 +83,6 @@ class AllocationRule(Base):
     is_active = Column(Boolean, default=True)
 
 
-class DerivedVariable(Base):
-    __tablename__ = "derived_variables"
-
-    variable_id = Column(String, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
-    formula = Column(String, nullable=False)  # Stored as "field1 + field2" etc.
-    description = Column(String)
-
-
 class AppOption(Base):
     """Dynamic configuration options (services, request types, urgency, cities)"""
 

@@ -1,0 +1,18 @@
+category,key,value,icon,order
+SERVICE,Superonline,Superonline,bi-wifi,1
+SERVICE,Paycell,Paycell,bi-credit-card,2
+SERVICE,TV+,TV+,bi-tv,3
+REQUEST_TYPE,CONNECTION_ISSUE,Bağlantı Sorunu,,1
+REQUEST_TYPE,PAYMENT_PROBLEM,Ödeme Sorunu,,2
+REQUEST_TYPE,SERVICE_UPGRADE,Hizmet Yükseltme,,3
+REQUEST_TYPE,TECHNICAL_SUPPORT,Teknik Destek,,4
+REQUEST_TYPE,BILLING_INQUIRY,Fatura Sorgusu,,5
+REQUEST_TYPE,OTHER,Diğer,,6
+URGENCY,HIGH,Yüksek,bi-exclamation-triangle,1
+URGENCY,MEDIUM,Orta,bi-dash-circle,2
+URGENCY,LOW,Düşük,bi-check-circle,3
+CITY,Istanbul,İstanbul,,1
+CITY,Ankara,Ankara,,2
+CITY,Izmir,İzmir,,3
+CITY,Bursa,Bursa,,4
+CITY,Antalya,Antalya,,5

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Talepler - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-inbox-fill"></i> Tüm Talepler</h2>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Durum</label>
+                <select name="status" class="form-select">
+                    <option value="">Tümü</option>
+                    <option value="PENDING" {{ 'selected' if request.args.get('status')=='PENDING' }}>Bekliyor</option>
+                    <option value="ASSIGNED" {{ 'selected' if request.args.get('status')=='ASSIGNED' }}>Atandı</option>
+                    <option value="COMPLETED" {{ 'selected' if request.args.get('status')=='COMPLETED' }}>Tamamlandı
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Aciliyet</label>
+                <select name="urgency" class="form-select">
+                    <option value="">Tümü</option>
+                    <option value="HIGH" {{ 'selected' if request.args.get('urgency')=='HIGH' }}>Yüksek</option>
+                    <option value="MEDIUM" {{ 'selected' if request.args.get('urgency')=='MEDIUM' }}>Orta</option>
+                    <option value="LOW" {{ 'selected' if request.args.get('urgency')=='LOW' }}>Düşük</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-filter"></i> Filtrele
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Requests Table -->
+<div class="card">
+    <div class="card-body">
+        {% if requests %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Talep ID</th>
+                        <th>Kullanıcı</th>
+                        <th>Servis</th>
+                        <th>Tür</th>
+                        <th>Aciliyet</th>
+                        <th>Durum</th>
+                        <th>Oluşturulma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td><code>{{ req.request_id }}</code></td>
+                        <td>{{ req.user_id }}</td>
+                        <td>{{ req.service }}</td>
+                        <td>{{ req.request_type }}</td>
+                        <td>
+                            <span class="badge badge-{{ req.urgency|lower }}">
+                                {{ req.urgency }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if req.status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark">Bekliyor</span>
+                            {% elif req.status == 'ASSIGNED' %}
+                            <span class="badge bg-success">Atandı</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ req.created_at[:19] if req.created_at else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">Talep bulunamadı</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

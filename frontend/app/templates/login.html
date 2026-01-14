@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Giriş - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-lightning-charge-fill fs-1" style="color: var(--turkcell-yellow);"></i>
+                    <h4 class="mt-2">Turkcell Smart Allocation</h4>
+                    <p class="text-muted">Hesabınıza giriş yapın</p>
+                </div>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı ID</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="user_id" class="form-control" placeholder="Örn: U1, admin"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Şifre</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" class="form-control" placeholder="Şifreniz" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-turkcell btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <span class="text-muted">Hesabınız yok mu?</span>
+                    <a href="{{ url_for('register') }}" class="ms-1">Kayıt ol</a>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded small">
+                    <strong>Demo Hesapları:</strong><br>
+                    Admin: <code>admin / admin123</code><br>
+                    User: <code>U1 / user123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

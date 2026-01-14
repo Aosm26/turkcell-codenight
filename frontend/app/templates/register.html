@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Kayıt Ol - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-plus-fill fs-1" style="color: var(--turkcell-yellow);"></i>
+                    <h4 class="mt-2">Yeni Hesap Oluştur</h4>
+                </div>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Kullanıcı ID</label>
+                        <input type="text" name="user_id" class="form-control" placeholder="Benzersiz kullanıcı ID'niz"
+                            required>
+                        <small class="text-muted">Giriş yaparken kullanacaksınız</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ad Soyad</label>
+                        <input type="text" name="name" class="form-control" placeholder="Adınız ve soyadınız" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Şehir</label>
+                        <select name="city" class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Istanbul">İstanbul</option>
+                            <option value="Ankara">Ankara</option>
+                            <option value="Izmir">İzmir</option>
+                            <option value="Bursa">Bursa</option>
+                            <option value="Antalya">Antalya</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Şifre</label>
+                        <input type="password" name="password" class="form-control" placeholder="En az 6 karakter"
+                            required minlength="6">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-turkcell btn-lg">
+                            <i class="bi bi-person-check"></i> Kayıt Ol
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <span class="text-muted">Zaten hesabınız var mı?</span>
+                    <a href="{{ url_for('login') }}" class="ms-1">Giriş yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

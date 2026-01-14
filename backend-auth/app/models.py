@@ -81,27 +81,3 @@ class AllocationRule(Base):
     condition = Column(String, nullable=False)  # e.g., "urgency == 'HIGH'"
     weight = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
-
-
-class DerivedVariable(Base):
-    __tablename__ = "derived_variables"
-
-    variable_id = Column(String, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
-    formula = Column(String, nullable=False)  # Stored as "field1 + field2" etc.
-    description = Column(String)
-
-
-class AppOption(Base):
-    """Dynamic configuration options (services, request types, urgency, cities)"""
-
-    __tablename__ = "app_options"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    category = Column(
-        String, nullable=False, index=True
-    )  # SERVICE, REQUEST_TYPE, URGENCY, CITY
-    key = Column(String, nullable=False)  # e.g., "Superonline", "HIGH"
-    value = Column(String, nullable=False)  # Display value
-    icon = Column(String, nullable=True)  # Optional icon class
-    order = Column(Integer, default=0)  # Display order

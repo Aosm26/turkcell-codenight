@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Taleplerim - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="bi bi-list-check text-primary"></i> Taleplerim</h2>
+        <p class="text-muted mb-0">Tüm destek taleplerinizi buradan takip edebilirsiniz.</p>
+    </div>
+    <a href="{{ url_for('user_new_request') }}" class="btn btn-turkcell">
+        <i class="bi bi-plus"></i> Yeni Talep
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if requests %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Talep ID</th>
+                        <th>Hizmet</th>
+                        <th>Tür</th>
+                        <th>Aciliyet</th>
+                        <th>Durum</th>
+                        <th>Oluşturulma</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td><code>{{ req.request_id }}</code></td>
+                        <td>
+                            {% if req.service == 'Superonline' %}
+                            <i class="bi bi-wifi text-primary"></i>
+                            {% elif req.service == 'Paycell' %}
+                            <i class="bi bi-credit-card text-success"></i>
+                            {% else %}
+                            <i class="bi bi-tv text-info"></i>
+                            {% endif %}
+                            {{ req.service }}
+                        </td>
+                        <td>{{ req.request_type }}</td>
+                        <td>
+                            <span class="badge badge-{{ req.urgency|lower }}">{{ req.urgency }}</span>
+                        </td>
+                        <td>
+                            {% if req.status == 'PENDING' %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i>
+                                Bekliyor</span>
+                            {% elif req.status == 'ASSIGNED' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Atandı</span>
+                            {% elif req.status == 'COMPLETED' %}
+                            <span class="badge bg-primary"><i class="bi bi-check-all"></i> Tamamlandı</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ req.created_at[:16].replace('T', ' ') if req.created_at else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-3">Henüz bir talebiniz bulunmuyor.</p>
+            <a href="{{ url_for('user_new_request') }}" class="btn btn-turkcell">
+                <i class="bi bi-plus"></i> İlk Talebinizi Oluşturun
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
