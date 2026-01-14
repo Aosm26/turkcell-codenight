@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: turkcell-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: turkcell
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./seed_data:/docker-entrypoint-initdb.d/seed
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: turkcell-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/turkcell
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/app:/app
+      - ./seed_data:/app/seed_data
+
+  frontend:
+    build: ./frontend
+    container_name: turkcell-dashboard
+    ports:
+      - "5000:5000"
+    environment:
+      API_URL: http://backend:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/app:/app
+
+volumes:
+  postgres_data:

@@ -1,0 +1,5 @@
+rule_id,condition,weight,is_active
+AR-1,urgency == 'HIGH',50,True
+AR-2,urgency == 'MEDIUM',30,True
+AR-3,urgency == 'LOW',10,True
+AR-4,service == 'Superonline',20,True

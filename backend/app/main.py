@@ -1,0 +1,136 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from database import engine, Base, SessionLocal
+from models import User, Resource, Request, Allocation, AllocationRule
+from routers import requests, resources, allocations, dashboard, rules
+import csv
+import os
+from datetime import datetime
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Turkcell Smart Allocation API",
+    description="Dinamik Kaynak ve Öncelik Yönetim Platformu",
+    version="1.0.0",
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(requests.router)
+app.include_router(resources.router)
+app.include_router(allocations.router)
+app.include_router(dashboard.router)
+app.include_router(rules.router)
+
+
+@app.get("/")
+def root():
+    return {"message": "Turkcell Smart Allocation API", "docs": "/docs"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+
+def load_seed_data():
+    """Load initial data from CSV files"""
+    db = SessionLocal()
+
+    try:
+        # Check if data already exists
+        if db.query(User).count() > 0:
+            print("Seed data already loaded")
+            return
+
+        seed_dir = "/app/seed_data"
+        if not os.path.exists(seed_dir):
+            seed_dir = "./seed_data"
+        if not os.path.exists(seed_dir):
+            seed_dir = "../seed_data"
+        if not os.path.exists(seed_dir):
+            print("Seed data directory not found")
+            return
+
+        # Load users
+        users_file = os.path.join(seed_dir, "users.csv")
+        if os.path.exists(users_file):
+            with open(users_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    user = User(
+                        user_id=row["user_id"], name=row["name"], city=row["city"]
+                    )
+                    db.add(user)
+
+        # Load resources
+        resources_file = os.path.join(seed_dir, "resources.csv")
+        if os.path.exists(resources_file):
+            with open(resources_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    resource = Resource(
+                        resource_id=row["resource_id"],
+                        resource_type=row["resource_type"],
+                        capacity=int(row["capacity"]),
+                        city=row["city"],
+                        status=row["status"],
+                    )
+                    db.add(resource)
+
+        # Load requests
+        requests_file = os.path.join(seed_dir, "requests.csv")
+        if os.path.exists(requests_file):
+            with open(requests_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    req = Request(
+                        request_id=row["request_id"],
+                        user_id=row["user_id"],
+                        service=row["service"],
+                        request_type=row["request_type"],
+                        urgency=row["urgency"],
+                        created_at=datetime.fromisoformat(
+                            row["created_at"].replace("Z", "+00:00")
+                        ),
+                        status="PENDING",
+                    )
+                    db.add(req)
+
+        # Load allocation rules
+        rules_file = os.path.join(seed_dir, "allocation_rules.csv")
+        if os.path.exists(rules_file):
+            with open(rules_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    rule = AllocationRule(
+                        rule_id=row["rule_id"],
+                        condition=row["condition"],
+                        weight=int(row["weight"]),
+                        is_active=row["is_active"].lower() == "true",
+                    )
+                    db.add(rule)
+
+        db.commit()
+        print("Seed data loaded successfully")
+
+    except Exception as e:
+        print(f"Error loading seed data: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
+@app.on_event("startup")
+async def startup_event():
+    load_seed_data()

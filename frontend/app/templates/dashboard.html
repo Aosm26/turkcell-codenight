@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Turkcell Smart Allocation{% endblock %}
+
+{% block content %}
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-hourglass-split fs-1 mb-2" style="color: var(--turkcell-yellow);"></i>
+                <div class="stat-value">{{ summary.pending_requests or 0 }}</div>
+                <div class="text-light">Bekleyen Talep</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle-fill fs-1 mb-2" style="color: var(--turkcell-yellow);"></i>
+                <div class="stat-value">{{ summary.active_allocations or 0 }}</div>
+                <div class="text-light">Aktif Atama</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill fs-1 mb-2" style="color: var(--turkcell-yellow);"></i>
+                <div class="stat-value">{{ summary.total_resources or 0 }}</div>
+                <div class="text-light">Toplam Kaynak</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-pie-chart-fill fs-1 mb-2" style="color: var(--turkcell-yellow);"></i>
+                <div class="stat-value">%{{ summary.resource_utilization or 0 }}</div>
+                <div class="text-light">Kaynak Kullanımı</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <form action="{{ url_for('allocate') }}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-turkcell btn-lg">
+                <i class="bi bi-lightning-charge-fill"></i> Otomatik Atama Yap
+            </button>
+        </form>
+        <a href="{{ url_for('new_request') }}" class="btn btn-outline-primary btn-lg ms-2">
+            <i class="bi bi-plus-circle"></i> Yeni Talep
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Requests -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-inbox-fill text-warning"></i> Bekleyen Talepler</h5>
+            </div>
+            <div class="card-body">
+                {% if requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Servis</th>
+                                <th>Aciliyet</th>
+                                <th>Tür</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td><code>{{ req.request_id }}</code></td>
+                                <td>{{ req.service }}</td>
+                                <td>
+                                    <span class="badge badge-{{ req.urgency|lower }}">
+                                        {{ req.urgency }}
+                                    </span>
+                                </td>
+                                <td>{{ req.request_type }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Bekleyen talep yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-people-fill text-primary"></i> Kaynak Durumu</h5>
+            </div>
+            <div class="card-body">
+                {% if resources %}
+                {% for res in resources %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>{{ res.resource_id }}</strong> - {{ res.resource_type }}</span>
+                        <span class="text-muted">{{ res.city }}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar"
+                            style="width: {{ (res.get('active_allocations', 0) / res.capacity * 100)|int if res.capacity > 0 else 0 }}%">
+                        </div>
+                    </div>
+                    <small class="text-muted">Kapasite: {{ res.capacity }}</small>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0">Kaynak bulunamadı</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Allocations -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-diagram-3-fill text-success"></i> Son Atamalar</h5>
+            </div>
+            <div class="card-body">
+                {% if allocations %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Atama ID</th>
+                                <th>Talep ID</th>
+                                <th>Kaynak ID</th>
+                                <th>Öncelik Skoru</th>
+                                <th>Durum</th>
+                                <th>Zaman</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alloc in allocations %}
+                            <tr>
+                                <td><code>{{ alloc.allocation_id }}</code></td>
+                                <td><code>{{ alloc.request_id }}</code></td>
+                                <td>{{ alloc.resource_id }}</td>
+                                <td><span class="badge bg-info">{{ alloc.priority_score }}</span></td>
+                                <td><span class="badge bg-success">{{ alloc.status }}</span></td>
+                                <td>{{ alloc.timestamp[:19] if alloc.timestamp else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Henüz atama yapılmadı</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto refresh every 30 seconds
+    setTimeout(function () {
+        location.reload();
+    }, 30000);
+</script>
+{% endblock %}
