@@ -1,34 +1,17 @@
 from sqlalchemy.orm import Session
-from models import Request, Resource, Allocation, AllocationRule
+from models import Request, Resource, Allocation, User
+from services.rule_engine import RuleEngine
+import logging
 from datetime import datetime
-from logging_config import allocation_logger
 import uuid
 
 
+# Logger konfigürasyonu
+logger = logging.getLogger("backend.services")
+event_logger = logging.getLogger("backend.events")
+
+
 class AllocationService:
-    @staticmethod
-    def calculate_priority(
-        request: Request, rules: list[AllocationRule], db: Session
-    ) -> float:
-        """Calculate priority score based on active rules"""
-        score = 0.0
-        matched_rules = []
-
-        for rule in rules:
-            if not rule.is_active:
-                continue
-
-            # Evaluate condition
-            condition = rule.condition
-            try:
-                # Simple condition evaluation
-                if "urgency ==" in condition:
-                    urgency_val = condition.split("==")[1].strip().strip("'\"")
-                    if request.urgency == urgency_val:
-                        score += rule.weight
-                        matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
-                elif "service ==" in condition:
-                    service_val = condition.split("==")[1].strip().strip("'\"")
                     if request.service == service_val:
                         score += rule.weight
                         matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
@@ -118,37 +101,45 @@ class AllocationService:
         # Calculate priority
         priority_score = AllocationService.calculate_priority(request, rules, db)
 
-        # Find best resource
-        resource = AllocationService.find_best_resource(request, db)
+        # --- STEP 2: FIND BEST RESOURCE (Placeholder Logic) ---
+        # Find available resource in same city
+        user = db.query(User).filter(User.user_id == request.user_id).first()
+        city = user.city if user else "Istanbul"
 
+        resource = (
+            db.query(Resource)
+            .filter(Resource.city == city, Resource.status == "AVAILABLE")
+            .first()
+        )
+        
+        status = "ASSIGNED"
         if not resource:
-            allocation_logger.warning(
-                f"❌ Could not allocate {request.request_id}: No available resources"
-            )
+            logger.warning(f"No resource found for {request.request_id} in {city}")
+            status = "PENDING"
+            # Resource not allocated, but we still update priority potentially?
+            # For now let's just return
             return None
 
-        # Create allocation
+        # --- STEP 3: CREATE ALLOCATION ---
         allocation = Allocation(
-            allocation_id=f"AL-{uuid.uuid4().hex[:6].upper()}",
+            allocation_id=f"AL-{request.request_id}",
             request_id=request.request_id,
             resource_id=resource.resource_id,
             priority_score=priority_score,
             status="ASSIGNED",
             timestamp=datetime.utcnow(),
         )
-
-        # Update request status
+        
+        # Update resource status
+        resource.status = "BUSY"
         request.status = "ASSIGNED"
-
+        
         db.add(allocation)
         db.commit()
-        db.refresh(allocation)
-
-        allocation_logger.info(
-            f"✅ Allocated {request.request_id} → {resource.resource_id} "
-            f"(priority={priority_score:.1f})"
-        )
-
+        db.refresh(allocation) # Added to match original behavior
+        
+        event_logger.info(f"ALLOCATION_SUCCESS | Req: {request.request_id} | Res: {resource.resource_id} | Score: {priority_score}")
+        
         return allocation
 
     @staticmethod
