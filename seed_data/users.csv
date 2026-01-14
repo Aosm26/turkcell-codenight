@@ -1,6 +1,8 @@
-user_id,name,city,password,role
-admin,Admin User,Istanbul,admin123,ADMIN
-U1,Ayşe,Istanbul,user123,USER
-U2,Ali,Ankara,user123,USER
-U3,Deniz,Izmir,user123,USER
-U4,Mert,Bursa,user123,USER
+user_id,name,city,service_id,password,role
+admin,Admin User,Istanbul,,admin123,ADMIN
+U1,Ayşe Yılmaz,Istanbul,SUPERONLINE,user123,USER
+U2,Mehmet Kaya,Ankara,PAYCELL,user123,USER
+U3,Fatma Demir,Izmir,TVPLUS,user123,USER
+U4,Ali Çelik,Bursa,SUPERONLINE,user123,USER
+U5,Zeynep Arslan,Antalya,PAYCELL,user123,USER
+U6,Hasan Öztürk,Istanbul,TVPLUS,user123,USER

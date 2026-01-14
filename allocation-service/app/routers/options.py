@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import AppOption
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import Dict, List
 
 router = APIRouter(prefix="/options", tags=["Options"])
 
@@ -17,61 +17,24 @@ class OptionItem(BaseModel):
         from_attributes = True
 
 
-class ServiceWithTypes(BaseModel):
-    """Service with its specific request types"""
-
-    key: str
-    value: str
-    icon: str | None = None
-    request_types: List[OptionItem]
+class OptionsResponse(BaseModel):
+    SERVICE: List[OptionItem]
+    REQUEST_TYPE: List[OptionItem]
+    URGENCY: List[OptionItem]
+    CITY: List[OptionItem]
 
 
-@router.get("/services", response_model=List[ServiceWithTypes])
-def get_services_with_types(db: Session = Depends(get_db)):
-    """Get services with their specific request types"""
-    services = (
-        db.query(AppOption)
-        .filter(AppOption.category == "SERVICE")
-        .order_by(AppOption.order)
-        .all()
-    )
+@router.get("", response_model=OptionsResponse)
+def get_options(db: Session = Depends(get_db)):
+    """Get all dynamic options grouped by category"""
+    options = db.query(AppOption).order_by(AppOption.category, AppOption.order).all()
 
-    result = []
-    for service in services:
-        # Get request types for this service
-        request_types = (
-            db.query(AppOption)
-            .filter(
-                AppOption.category == "REQUEST_TYPE",
-                AppOption.parent_key == service.key,
+    grouped = {"SERVICE": [], "REQUEST_TYPE": [], "URGENCY": [], "CITY": []}
+
+    for option in options:
+        if option.category in grouped:
+            grouped[option.category].append(
+                OptionItem(key=option.key, value=option.value, icon=option.icon)
             )
-            .order_by(AppOption.order)
-            .all()
-        )
 
-        result.append(
-            ServiceWithTypes(
-                key=service.key,
-                value=service.value,
-                icon=service.icon,
-                request_types=[
-                    OptionItem(key=rt.key, value=rt.value, icon=rt.icon)
-                    for rt in request_types
-                ],
-            )
-        )
-
-    return result
-
-
-@router.get("/urgency", response_model=List[OptionItem])
-def get_urgency_levels(db: Session = Depends(get_db)):
-    """Get urgency levels"""
-    urgency = (
-        db.query(AppOption)
-        .filter(AppOption.category == "URGENCY")
-        .order_by(AppOption.order)
-        .all()
-    )
-
-    return [OptionItem(key=u.key, value=u.value, icon=u.icon) for u in urgency]
+    return OptionsResponse(**grouped)

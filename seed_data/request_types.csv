@@ -1,0 +1,19 @@
+type_id,service_id,name,description,icon
+SUPER_001,SUPERONLINE,İnternet Bağlantısı Koptu,Ev internetinde bağlantı sorunu,bi-wifi-off
+SUPER_002,SUPERONLINE,İnternet Hızı Düşük,İnternet hızı beklenenden düşük,bi-speedometer
+SUPER_003,SUPERONLINE,Modem Sorunu,Modem yanıp sönüyor veya çalışmıyor,bi-router
+SUPER_004,SUPERONLINE,Kurulum Talebi,Yeni fiber abonelik kurulumu,bi-house-add
+SUPER_005,SUPERONLINE,Teknik Arıza,Genel teknik destek talebi,bi-tools
+SUPER_006,SUPERONLINE,Fatura Sorunu,Fatura ile ilgili sorun,bi-receipt
+PAY_001,PAYCELL,Ödeme Yapılamıyor,Ödeme işlemi başarısız oluyor,bi-x-circle
+PAY_002,PAYCELL,Bakiye Yüklenemedi,Bakiye yükleme işlemi hata veriyor,bi-wallet
+PAY_003,PAYCELL,Kart Bloke Oldu,Kartım bloke olmuş açılması gerekiyor,bi-shield-lock
+PAY_004,PAYCELL,Şifre Sıfırlama,Şifremi unuttum sıfırlamak istiyorum,bi-key
+PAY_005,PAYCELL,Hesap Güvenliği,Hesabımda şüpheli işlem var,bi-shield-exclamation
+PAY_006,PAYCELL,Para Transferi Sorunu,Para gönderme/alma sorunu,bi-arrow-left-right
+TV_001,TVPLUS,Yayın Kalitesi Düşük,Video donuyor veya kalitesiz görüntü,bi-badge-hd
+TV_002,TVPLUS,Uygulama Açılmıyor,TV+ uygulaması başlatılamıyor,bi-app-indicator
+TV_003,TVPLUS,İçerik Bulunamadı,Aranılan dizi/film bulunamıyor,bi-search
+TV_004,TVPLUS,Abonelik Sorunu,Abonelik yenilemesi yapılamadı,bi-credit-card
+TV_005,TVPLUS,Ses Sorunu,Ses gelmiyor veya ses senkronizasyonu bozuk,bi-volume-mute
+TV_006,TVPLUS,Canlı Yayın Donuyor,Canlı TV kanalları izlenemiyor,bi-broadcast

@@ -70,7 +70,6 @@ services:
       - .env
     environment:
       API_URL: http://auth-service:8000
-      BUSINESS_SERVICE_URL: http://business-service:8001
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
       FLASK_DEBUG: ${FLASK_DEBUG}
     depends_on:
