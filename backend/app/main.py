@@ -159,6 +159,8 @@ def load_seed_data():
                         value=row["value"],
                         icon=row.get("icon") or None,
                         order=int(row.get("order", 0)),
+                        parent_category=row.get("parent_category") or None,
+                        parent_key=row.get("parent_key") or None,
                     )
                     db.add(option)
                     options_count += 1
