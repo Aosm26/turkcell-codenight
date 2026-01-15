@@ -274,21 +274,65 @@ def user_requests():
 
 
 @app.route("/admin")
+@login_required
 @admin_required
 def admin_dashboard():
-    """Admin dashboard with system overview"""
-    summary = api_get("/dashboard/summary", auth=True)
-    requests_list = api_get("/requests?status=PENDING", auth=True)
-    allocations = api_get("/allocations?status=ASSIGNED", auth=True)
-    resources = api_get("/resources", auth=True)
+    """Admin dashboard"""
+    try:
+        # Fetch data from business service
+        headers = get_auth_header()
 
-    return render_template(
-        "admin/dashboard.html",
-        summary=summary,
-        requests=requests_list[:10],
-        allocations=allocations[:10],
-        resources=resources,
-    )
+        # Get all requests
+        requests_resp = requests.get(f"{BUSINESS_API_URL}/requests", headers=headers)
+        all_requests = requests_resp.json() if requests_resp.ok else []
+
+        # Get all allocations
+        allocations_resp = requests.get(
+            f"{BUSINESS_API_URL}/allocations", headers=headers
+        )
+        all_allocations = allocations_resp.json() if allocations_resp.ok else []
+
+        # Get all resources
+        resources_resp = requests.get(f"{BUSINESS_API_URL}/resources", headers=headers)
+        all_resources = resources_resp.json() if resources_resp.ok else []
+
+        # Calculate stats
+        pending_count = sum(1 for r in all_requests if r.get("status") == "PENDING")
+        active_allocations = sum(
+            1 for a in all_allocations if a.get("status") == "ASSIGNED"
+        )
+        available_resources = sum(
+            1 for r in all_resources if r.get("status") == "AVAILABLE"
+        )
+        total_resources = len(all_resources)
+        utilization = (
+            (active_allocations / total_resources * 100) if total_resources > 0 else 0
+        )
+
+        dashboard_logger.info(
+            f"Admin dashboard: {pending_count} pending, {active_allocations} active"
+        )
+
+        return render_template(
+            "admin/dashboard.html",
+            pending_requests=pending_count,
+            active_allocations=active_allocations,
+            available_resources=available_resources,
+            utilization=round(utilization, 1),
+            recent_allocations=all_allocations[:10],  # Last 10
+            resources=all_resources,
+        )
+    except Exception as e:
+        dashboard_logger.error(f"Error loading admin dashboard: {e}")
+        return render_template(
+            "admin/dashboard.html",
+            pending_requests=0,
+            active_allocations=0,
+            available_resources=0,
+            utilization=0,
+            recent_allocations=[],
+            resources=[],
+        )
 
 
 @app.route("/admin/requests")
