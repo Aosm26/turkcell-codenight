@@ -1,3 +1,0 @@
-variable_id,name,formula,description
-VAR_001,Risk_Skoru,"( urgency_score * 2 ) + ( waiting_hours * 1.5 )","Combined urgency and waiting time risk score"
-VAR_002,Service_Bonus,"10 if service == 'Superonline' else 5","Bonus for Superonline service (priority)"

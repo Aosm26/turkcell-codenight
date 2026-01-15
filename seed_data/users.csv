@@ -1,6 +1,17 @@
+<<<<<<< HEAD
 user_id,name,city,password,role
 admin,Admin User,Istanbul,admin123,ADMIN
 U1,Ayşe Yılmaz,Istanbul,user123,USER
 U2,Mehmet Kaya,Ankara,user123,USER
 U3,Fatma Demir,Izmir,user123,USER
 U4,Ali Çelik,Bursa,user123,USER
+=======
+user_id,name,city,service_id,password,role
+admin,Admin User,Istanbul,,admin123,ADMIN
+U1,Ayşe Yılmaz,Istanbul,SUPERONLINE,user123,USER
+U2,Mehmet Kaya,Ankara,PAYCELL,user123,USER
+U3,Fatma Demir,Izmir,TVPLUS,user123,USER
+U4,Ali Çelik,Bursa,SUPERONLINE,user123,USER
+U5,Zeynep Arslan,Antalya,PAYCELL,user123,USER
+U6,Hasan Öztürk,Istanbul,TVPLUS,user123,USER
+>>>>>>> dfbe5a019b945a033813f1830a57ca3ebe1b91a1

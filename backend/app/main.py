@@ -67,6 +67,45 @@ def load_seed_data():
 
         database_logger.info(f"Loading seed data from: {seed_dir}")
 
+        # Load services
+        services_file = os.path.join(seed_dir, "services.csv")
+        if os.path.exists(services_file):
+            from models import Service
+
+            with open(services_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                services_count = 0
+                for row in reader:
+                    service = Service(
+                        service_id=row["service_id"],
+                        name=row["name"],
+                        icon=row.get("icon"),
+                        description=row.get("description"),
+                    )
+                    db.add(service)
+                    services_count += 1
+                database_logger.info(f"Loaded {services_count} services")
+
+        # Load request types
+        request_types_file = os.path.join(seed_dir, "request_types.csv")
+        if os.path.exists(request_types_file):
+            from models import RequestType
+
+            with open(request_types_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                types_count = 0
+                for row in reader:
+                    req_type = RequestType(
+                        type_id=row["type_id"],
+                        service_id=row["service_id"],
+                        name=row["name"],
+                        description=row.get("description"),
+                        icon=row.get("icon"),
+                    )
+                    db.add(req_type)
+                    types_count += 1
+                database_logger.info(f"Loaded {types_count} request types")
+
         # Load users
         users_file = os.path.join(seed_dir, "users.csv")
         if os.path.exists(users_file):
@@ -80,6 +119,7 @@ def load_seed_data():
                         user_id=row["user_id"],
                         name=row["name"],
                         city=row["city"],
+                        service_id=row.get("service_id") or None,
                         password_hash=get_password_hash(row.get("password", "user123")),
                         role=row.get("role", "USER"),
                     )
@@ -115,8 +155,8 @@ def load_seed_data():
                     req = Request(
                         request_id=row["request_id"],
                         user_id=row["user_id"],
-                        service=row["service"],
-                        request_type=row["request_type"],
+                        service_id=row["service_id"],
+                        request_type_id=row["request_type_id"],
                         urgency=row["urgency"],
                         created_at=datetime.fromisoformat(
                             row["created_at"].replace("Z", "+00:00")
@@ -153,11 +193,20 @@ def load_seed_data():
                 reader = csv.DictReader(f)
                 vars_count = 0
                 for row in reader:
+<<<<<<< HEAD
                     var = DerivedVariable(
                         variable_id=row["variable_id"],
                         name=row["name"],
                         formula=row["formula"],
                         description=row.get("description"),
+=======
+                    option = AppOption(
+                        category=row["category"],
+                        key=row["key"],
+                        value=row["value"],
+                        icon=row.get("icon") or None,
+                        order=int(row.get("order", 0)),
+>>>>>>> dfbe5a019b945a033813f1830a57ca3ebe1b91a1
                     )
                     db.add(var)
                     vars_count += 1

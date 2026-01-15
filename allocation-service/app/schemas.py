@@ -32,16 +32,16 @@ class ResourceResponse(ResourceBase):
 # Request Schemas
 class RequestCreate(BaseModel):
     user_id: str
-    service: str
-    request_type: str
+    service_id: str
+    request_type_id: str
     urgency: str
 
 
 class RequestResponse(BaseModel):
     request_id: str
     user_id: str
-    service: str
-    request_type: str
+    service_id: str
+    request_type_id: str
     urgency: str
     created_at: datetime
     status: str

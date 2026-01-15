@@ -1,8 +1,0 @@
-rule_id,condition,weight,is_active
-AR-URGENCY-HIGH,urgency == 'HIGH',30,true
-AR-URGENCY-MEDIUM,urgency == 'MEDIUM',15,true
-AR-URGENCY-LOW,urgency == 'LOW',5,true
-AR-SUPER-PRIORITY,service == 'Superonline' and urgency == 'HIGH',20,true
-AR-PAYCELL-URGENT,service == 'Paycell' and urgency_score >= 5,15,true
-AR-RISK-HIGH,Risk_Skoru > 25,25,true
-AR-LONG-WAIT,waiting_hours > 2,10,true
