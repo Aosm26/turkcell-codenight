@@ -10,10 +10,6 @@ Bu proje, Turkcell servislerine gelen talepleri dinamik kural motoru ile önceli
 - [Özellikler](#özellikler)
 - [Mimari](#mimari)
   - [Dinamik Kural Motoru](#dinamik-kural-motoru)
-- [Kurulum](#kurulum)
-- [Kullanım](#kullanım)
-- [API Dokümantasyonu](#api-dokümantasyonu)
-- [Takım](#takım)
 
 ---
 
