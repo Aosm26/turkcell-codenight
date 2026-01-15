@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Request, Resource, Allocation, AllocationRule, User
+from models import Request, Resource, Allocation, User
 from services.rule_engine import RuleEngine
 from datetime import datetime
 from logging_config import allocation_logger
@@ -7,13 +7,19 @@ import uuid
 
 
 class AllocationService:
-    """Service for allocating requests to resources"""
+    """Service for allocating requests to resources using dynamic rule engine"""
 
     @staticmethod
     def calculate_priority(request: Request, db: Session) -> float:
         """
         Calculate priority score for a request using RuleEngine.
-        Uses DerivedVariables and AllocationRules from database.
+
+        The RuleEngine evaluates:
+        1. DerivedVariables (formulas like Risk_Skoru)
+        2. AllocationRules (conditions with weights)
+
+        Returns:
+            Priority score as float
         """
         engine = RuleEngine(db)
         priority_score = engine.calculate_priority(request, current_priority=0.0)
@@ -74,7 +80,7 @@ class AllocationService:
         """Allocate a single request to best available resource"""
         allocation_logger.info(f"📋 Allocating request {request.request_id}...")
 
-        # Calculate priority
+        # Calculate priority using RuleEngine
         priority_score = AllocationService.calculate_priority(request, db)
 
         # Find best resource
@@ -108,7 +114,7 @@ class AllocationService:
             f"(priority={priority_score:.1f})"
         )
 
-        # Send notification via Auth Service (disabled - requires requests module)
+        # Note: Notification disabled - requires requests module
         # from services.http_client import notify_user
         # message = f"Talebiniz öncelikli olarak işleme alındı. {resource.resource_type} yönlendirildi."
         # notify_user(request.user_id, message)

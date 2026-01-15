@@ -1,13 +1,17 @@
 from sqlalchemy.orm import Session
 from models import AllocationRule, DerivedVariable, Request
+from datetime import datetime
 from logging_config import allocation_logger
 
 
 class RuleEngine:
     """
-    Dynamic Rule Engine for Smart Allocation System.
-    Evaluates formulas (DerivedVariables) and conditions (AllocationRules)
-    against Request data to calculate priority scores.
+    Dynamic Rule Engine: Evaluates formulas and conditions from database.
+
+    Flow:
+    1. Build Context: Extract request data + calculate waiting_hours
+    2. Evaluate Variables: Execute DerivedVariable formulas (e.g. Risk_Skoru)
+    3. Evaluate Rules: Check AllocationRule conditions and sum weights
     """
 
     def __init__(self, db: Session):
@@ -18,40 +22,44 @@ class RuleEngine:
     ) -> float:
         """
         Main entry point for priority calculation.
-        1. Build context from request
-        2. Evaluate derived variables (formulas)
-        3. Evaluate allocation rules (conditions)
-        """
-        allocation_logger.info(
-            f"⚙️ RuleEngine calculating priority for {request.request_id}"
-        )
 
-        # 1. Build base context from request
+        Args:
+            request: The request to calculate priority for
+            current_priority: Starting priority score (default 0)
+
+        Returns:
+            Final calculated priority score
+        """
+        allocation_logger.info(f"⚙️ Calculating priority for {request.request_id}")
+
+        # Step 1: Build evaluation context from request
         context = self._build_context(request)
         context["priority_score"] = current_priority
 
-        # 2. Evaluate dynamic variables
+        # Step 2: Evaluate derived variables (formulas)
         self._evaluate_variables(context)
 
-        # 3. Evaluate rules and calculate final score
+        # Step 3: Evaluate allocation rules (conditions)
         final_score = self._evaluate_rules(context)
 
-        allocation_logger.info(f"✅ Final priority score: {final_score:.1f}")
+        allocation_logger.info(
+            f"✅ Final priority for {request.request_id}: {final_score:.1f}"
+        )
         return final_score
 
     def _build_context(self, request: Request) -> dict:
         """
-        Build evaluation context from request object.
-        Includes request attributes and helper scores.
-        """
-        from datetime import datetime
+        Build evaluation context from request data.
 
-        # Calculate waiting hours
+        Context includes:
+        - Basic fields: urgency, service, request_type
+        - Calculated fields: urgency_score, waiting_hours
+        """
+        # Calculate waiting time
         waiting_hours = 0.0
         if request.created_at:
-            waiting_hours = (
-                datetime.utcnow() - request.created_at
-            ).total_seconds() / 3600
+            time_delta = datetime.utcnow() - request.created_at
+            waiting_hours = time_delta.total_seconds() / 3600
 
         context = {
             "urgency": request.urgency,  # HIGH, MEDIUM, LOW
@@ -78,33 +86,47 @@ class RuleEngine:
 
     def _evaluate_variables(self, context: dict):
         """
-        Fetch and evaluate DerivedVariable formulas.
+        Evaluate DerivedVariable formulas and add results to context.
+
+        Example:
+            Formula: "( urgency_score * 2 ) + 10"
+            Result: Risk_Skoru = 30 (when urgency_score = 10)
+
         Results are added to context for use in rules.
         """
         variables = self.db.query(DerivedVariable).all()
 
+        allocation_logger.debug(f"Evaluating {len(variables)} derived variables...")
+
         for var in variables:
             try:
-                # Evaluate formula in restricted scope
-                # Example: "( urgency_score * 2 ) + 10"
+                # Execute formula in restricted scope
+                # __builtins__: None prevents dangerous operations
                 result = eval(var.formula, {"__builtins__": None}, context)
 
-                # Add to context for subsequent rules/variables
+                # Add to context for use in rules
                 context[var.name] = result
+
                 allocation_logger.debug(
-                    f"   ➕ Variable: {var.name} = {result} (formula: {var.formula})"
+                    f"  ✓ {var.name} = {result} (formula: {var.formula})"
                 )
 
             except Exception as e:
                 allocation_logger.error(
-                    f"   ❌ Error calculating variable '{var.name}': {e}"
+                    f"  ✗ Error evaluating variable '{var.name}': {e}"
                 )
                 context[var.name] = 0  # Fallback to 0
 
     def _evaluate_rules(self, context: dict) -> float:
         """
-        Fetch and evaluate active AllocationRules.
-        If condition is True, add weight to score.
+        Evaluate AllocationRule conditions and sum matching weights.
+
+        Example:
+            Condition: "Risk_Skoru > 20 and service == 'Superonline'"
+            If True: Add weight to total score
+
+        Returns:
+            Final priority score
         """
         rules = (
             self.db.query(AllocationRule).filter(AllocationRule.is_active == True).all()
@@ -113,25 +135,29 @@ class RuleEngine:
         total_score = context.get("priority_score", 0.0)
         matched_rules = []
 
+        allocation_logger.debug(f"Evaluating {len(rules)} active rules...")
+
         for rule in rules:
             try:
                 # Evaluate condition in restricted scope
-                # Example: "urgency_score > 5 and service_id == 'SUPERONLINE'"
                 if eval(rule.condition, {"__builtins__": None}, context):
                     total_score += rule.weight
                     matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
+
                     allocation_logger.info(
-                        f"   ✅ Rule MATCHED: {rule.rule_id} (+{rule.weight}) -> {rule.condition}"
+                        f"  ✓ MATCHED: {rule.rule_id} → +{rule.weight} "
+                        f"(condition: {rule.condition})"
                     )
                 else:
-                    allocation_logger.debug(f"   Rule {rule.rule_id} -> False")
+                    allocation_logger.debug(f"  - {rule.rule_id}: condition not met")
 
             except Exception as e:
                 allocation_logger.error(
-                    f"   ❌ Error evaluating rule '{rule.rule_id}': {e}"
+                    f"  ✗ Error evaluating rule '{rule.rule_id}': {e}"
                 )
 
-        if matched_rules:
-            allocation_logger.info(f"   Matched rules: {', '.join(matched_rules)}")
+        allocation_logger.info(
+            f"Matched rules: {', '.join(matched_rules) if matched_rules else 'none'}"
+        )
 
         return float(total_score)

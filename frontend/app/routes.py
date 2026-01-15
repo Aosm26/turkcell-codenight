@@ -394,11 +394,23 @@ def admin_allocate():
 
 
 @app.route("/admin/rules")
+@login_required
 @admin_required
 def admin_rules():
     """View and manage allocation rules"""
-    rules = api_get("/rules", auth=True)
-    return render_template("admin/rules.html", rules=rules)
+    rules = business_api_get("/rules", auth=True)
+
+    # Also get derived variables for display
+    variables = []
+    try:
+        headers = get_auth_header()
+        resp = requests.get(f"{BUSINESS_URL}/derived-variables", headers=headers)
+        if resp.ok:
+            variables = resp.json()
+    except:
+        pass
+
+    return render_template("admin/rules.html", rules=rules, variables=variables)
 
 
 # ============ Context Processor ============
