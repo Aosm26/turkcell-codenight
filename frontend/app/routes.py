@@ -283,17 +283,15 @@ def admin_dashboard():
         headers = get_auth_header()
 
         # Get all requests
-        requests_resp = requests.get(f"{BUSINESS_API_URL}/requests", headers=headers)
+        requests_resp = requests.get(f"{BUSINESS_URL}/requests", headers=headers)
         all_requests = requests_resp.json() if requests_resp.ok else []
 
         # Get all allocations
-        allocations_resp = requests.get(
-            f"{BUSINESS_API_URL}/allocations", headers=headers
-        )
+        allocations_resp = requests.get(f"{BUSINESS_URL}/allocations", headers=headers)
         all_allocations = allocations_resp.json() if allocations_resp.ok else []
 
         # Get all resources
-        resources_resp = requests.get(f"{BUSINESS_API_URL}/resources", headers=headers)
+        resources_resp = requests.get(f"{BUSINESS_URL}/resources", headers=headers)
         all_resources = resources_resp.json() if resources_resp.ok else []
 
         # Calculate stats
@@ -336,6 +334,7 @@ def admin_dashboard():
 
 
 @app.route("/admin/requests")
+@login_required
 @admin_required
 def admin_requests():
     """View all requests"""
@@ -351,7 +350,7 @@ def admin_requests():
     if params:
         endpoint += "?" + "&".join(params)
 
-    requests_list = api_get(endpoint, auth=True)
+    requests_list = business_api_get(endpoint, auth=True)
     return render_template("admin/requests.html", requests=requests_list)
 
 
@@ -359,10 +358,10 @@ def admin_requests():
 @admin_required
 def admin_resources():
     """View and manage resources"""
-    resources = api_get("/resources", auth=True)
+    resources_list = business_api_get("/resources", auth=True)
     allocations = api_get("/allocations?status=ASSIGNED", auth=True)
 
-    for res in resources:
+    for res in resources_list:
         active = sum(
             1 for a in allocations if a.get("resource_id") == res["resource_id"]
         )
@@ -371,22 +370,22 @@ def admin_resources():
             (active / res["capacity"] * 100) if res["capacity"] > 0 else 0
         )
 
-    return render_template("admin/resources.html", resources=resources)
+    return render_template("admin/resources.html", resources=resources_list)
 
 
 @app.route("/admin/allocations")
 @admin_required
 def admin_allocations():
     """View all allocations"""
-    allocations = api_get("/allocations", auth=True)
-    return render_template("admin/allocations.html", allocations=allocations)
+    allocations_list = business_api_get("/allocations", auth=True)
+    return render_template("admin/allocations.html", allocations=allocations_list)
 
 
 @app.route("/admin/allocate", methods=["POST"])
 @admin_required
 def admin_allocate():
     """Run automatic allocation"""
-    result = api_post("/allocations/allocate", auth=True)
+    result = business_api_post("/allocations/allocate", auth=True)
     if result:
         flash(f"{len(result)} talep başarıyla atandı!", "success")
     else:
