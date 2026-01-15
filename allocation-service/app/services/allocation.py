@@ -108,11 +108,10 @@ class AllocationService:
             f"(priority={priority_score:.1f})"
         )
 
-        # Send notification via Auth Service
-        from services.http_client import notify_user
-
-        message = f"Talebiniz öncelikli olarak işleme alındı. {resource.resource_type} yönlendirildi."
-        notify_user(request.user_id, message)
+        # Send notification via Auth Service (disabled - requires requests module)
+        # from services.http_client import notify_user
+        # message = f"Talebiniz öncelikli olarak işleme alındı. {resource.resource_type} yönlendirildi."
+        # notify_user(request.user_id, message)
 
         return allocation
 

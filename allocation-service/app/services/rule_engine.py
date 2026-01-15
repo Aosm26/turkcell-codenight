@@ -65,7 +65,7 @@ class RuleEngine:
 
         allocation_logger.debug(
             f"Context built: urgency={context['urgency']}, "
-            f"service={context['service_id']}, "
+            f"service={context['service']}, "
             f"waiting_hours={waiting_hours:.1f}"
         )
 
