@@ -359,7 +359,7 @@ def admin_requests():
 def admin_resources():
     """View and manage resources"""
     resources_list = business_api_get("/resources", auth=True)
-    allocations = api_get("/allocations?status=ASSIGNED", auth=True)
+    allocations = business_api_get("/allocations?status=ASSIGNED", auth=True)
 
     for res in resources_list:
         active = sum(
