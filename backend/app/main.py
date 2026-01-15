@@ -144,27 +144,24 @@ def load_seed_data():
                     rules_count += 1
                 database_logger.info(f"Loaded {rules_count} allocation rules")
 
-        # Load options
-        options_file = os.path.join(seed_dir, "options.csv")
-        if os.path.exists(options_file):
-            from models import AppOption
+        # Load derived variables
+        variables_file = os.path.join(seed_dir, "derived_variables.csv")
+        if os.path.exists(variables_file):
+            from models import DerivedVariable
 
-            with open(options_file, "r", encoding="utf-8") as f:
+            with open(variables_file, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
-                options_count = 0
+                vars_count = 0
                 for row in reader:
-                    option = AppOption(
-                        category=row["category"],
-                        key=row["key"],
-                        value=row["value"],
-                        icon=row.get("icon") or None,
-                        order=int(row.get("order", 0)),
-                        parent_category=row.get("parent_category") or None,
-                        parent_key=row.get("parent_key") or None,
+                    var = DerivedVariable(
+                        variable_id=row["variable_id"],
+                        name=row["name"],
+                        formula=row["formula"],
+                        description=row.get("description"),
                     )
-                    db.add(option)
-                    options_count += 1
-                database_logger.info(f"Loaded {options_count} app options")
+                    db.add(var)
+                    vars_count += 1
+                database_logger.info(f"Loaded {vars_count} derived variables")
 
         db.commit()
         database_logger.info("✅ Seed data loaded successfully")
