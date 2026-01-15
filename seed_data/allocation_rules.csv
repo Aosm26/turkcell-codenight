@@ -1,5 +1,8 @@
 rule_id,condition,weight,is_active
-AR-1,urgency == 'HIGH',50,True
-AR-2,urgency == 'MEDIUM',30,True
-AR-3,urgency == 'LOW',10,True
-AR-4,service == 'Superonline',20,True
+AR-URGENCY-HIGH,urgency == 'HIGH',30,true
+AR-URGENCY-MEDIUM,urgency == 'MEDIUM',15,true
+AR-URGENCY-LOW,urgency == 'LOW',5,true
+AR-SUPER-PRIORITY,"service_id == 'SUPERONLINE' and urgency == 'HIGH'",20,true
+AR-PAYCELL-URGENT,"service_id == 'PAYCELL' and urgency_score >= 5",15,true
+AR-RISK-HIGH,risk_score > 25,25,true
+AR-LONG-WAIT,waiting_hours > 2,10,true

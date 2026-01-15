@@ -1,0 +1,3 @@
+variable_id,name,formula,description
+VAR_001,risk_score,"( urgency_score * 2 ) + ( waiting_hours * 1.5 )","Combined urgency and waiting time risk score"
+VAR_002,service_bonus,"10 if service_id == 'SUPERONLINE' else 5","Bonus for Superonline service (priority)"

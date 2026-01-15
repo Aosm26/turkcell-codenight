@@ -1,0 +1,47 @@
+@app.route("/user/new-request", methods=["GET", "POST"])
+@login_required
+def user_new_request():
+    """Create a new service request"""
+    user_id = session.get("user_id")
+    
+    if request.method == "POST":
+        data = {
+            "user_id": user_id,
+            "service_id": request.form.get("service_id"),
+            "request_type_id": request.form.get("request_type_id"),
+            "urgency": request.form.get("urgency"),
+        }
+        # Call business service
+        try:
+            headers = get_auth_header()
+            response = requests.post(f"{BUSINESS_API_URL}/requests", json=data, headers=headers)
+            if response.ok:
+                flash("Talebiniz başarıyla oluşturuldu!", "success")
+                return redirect(url_for("user_dashboard"))
+            else:
+                flash(f"Talep oluşturulamadı: {response.json().get('detail', 'Hata')}", "error")
+        except Exception as e:
+            flash(f"Talep oluşturulamadı: {e}", "error")
+    
+    # Fetch user's service
+    user_service_id = session.get("service_id")
+    if not user_service_id:
+        # Get from auth API
+        user_profile = api_get("/auth/me", auth=True)
+        if user_profile:
+            user_service_id = user_profile.get("service_id")
+            session["service_id"] = user_service_id
+    
+    # Fetch request types for user's service from business API
+    request_types = []
+    if user_service_id:
+        try:
+            response = requests.get(f"{BUSINESS_API_URL}/services/{user_service_id}/request-types")
+            if response.ok:
+                request_types = response.json()
+        except Exception as e:
+            dashboard_logger.error(f"Failed to fetch request types: {e}")
+    
+    return render_template("user/new_request.html", 
+                         service_id=user_service_id,
+                         request_types=request_types)

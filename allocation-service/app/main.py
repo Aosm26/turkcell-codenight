@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import requests, resources, allocations, rules, options
+from routers import requests, resources, allocations, rules
 from logging_config import api_logger
 
 # Create tables
@@ -28,7 +28,6 @@ app.include_router(requests.router)
 app.include_router(resources.router)
 app.include_router(allocations.router)
 app.include_router(rules.router)
-app.include_router(options.router)
 
 
 @app.get("/")

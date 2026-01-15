@@ -78,21 +78,17 @@ class AllocationRule(Base):
     __tablename__ = "allocation_rules"
 
     rule_id = Column(String, primary_key=True)
-    condition = Column(String, nullable=False)  # e.g., "urgency == 'HIGH'"
+    condition = Column(String, nullable=False)  # Dynamic condition string
     weight = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
 
 
-class AppOption(Base):
-    """Dynamic configuration options (services, request types, urgency, cities)"""
+class DerivedVariable(Base):
+    """Dynamic variables calculated from formulas for rule engine"""
 
-    __tablename__ = "app_options"
+    __tablename__ = "derived_variables"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    category = Column(
-        String, nullable=False, index=True
-    )  # SERVICE, REQUEST_TYPE, URGENCY, CITY
-    key = Column(String, nullable=False)  # e.g., "Superonline", "HIGH"
-    value = Column(String, nullable=False)  # Display value
-    icon = Column(String, nullable=True)  # Optional icon class
-    order = Column(Integer, default=0)  # Display order
+    variable_id = Column(String, primary_key=True)
+    name = Column(String, nullable=False)  # e.g. "Risk_Skoru"
+    formula = Column(String, nullable=False)  # e.g. "( urgency_score * 2 ) + 10"
+    description = Column(String, nullable=True)

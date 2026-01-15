@@ -1,61 +1,23 @@
 from sqlalchemy.orm import Session
-from models import Request, Resource, Allocation, AllocationRule
+from models import Request, Resource, Allocation, AllocationRule, User
+from services.rule_engine import RuleEngine
 from datetime import datetime
 from logging_config import allocation_logger
 import uuid
 
 
 class AllocationService:
+    """Service for allocating requests to resources"""
+
     @staticmethod
-    def calculate_priority(
-        request: Request, rules: list[AllocationRule], db: Session
-    ) -> float:
-        """Calculate priority score based on active rules"""
-        score = 0.0
-        matched_rules = []
-
-        for rule in rules:
-            if not rule.is_active:
-                continue
-
-            # Evaluate condition
-            condition = rule.condition
-            try:
-                # Simple condition evaluation
-                if "urgency ==" in condition:
-                    urgency_val = condition.split("==")[1].strip().strip("'\"")
-                    if request.urgency == urgency_val:
-                        score += rule.weight
-                        matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
-                elif "service ==" in condition:
-                    service_val = condition.split("==")[1].strip().strip("'\"")
-                    if request.service == service_val:
-                        score += rule.weight
-                        matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
-                elif "request_type ==" in condition:
-                    type_val = condition.split("==")[1].strip().strip("'\"")
-                    if request.request_type == type_val:
-                        score += rule.weight
-                        matched_rules.append(f"{rule.rule_id}(+{rule.weight})")
-            except Exception:
-                continue
-
-        # Add waiting time bonus (2 points per hour, max 20)
-        waiting_bonus = 0.0
-        if request.created_at:
-            waiting_hours = (
-                datetime.utcnow() - request.created_at
-            ).total_seconds() / 3600
-            waiting_bonus = min(waiting_hours * 2, 20)
-            score += waiting_bonus
-
-        allocation_logger.debug(
-            f"Priority calculated for {request.request_id}: "
-            f"base={score - waiting_bonus:.1f}, waiting_bonus={waiting_bonus:.1f}, "
-            f"total={score:.1f}, rules={matched_rules}"
-        )
-
-        return score
+    def calculate_priority(request: Request, db: Session) -> float:
+        """
+        Calculate priority score for a request using RuleEngine.
+        Uses DerivedVariables and AllocationRules from database.
+        """
+        engine = RuleEngine(db)
+        priority_score = engine.calculate_priority(request, current_priority=0.0)
+        return priority_score
 
     @staticmethod
     def find_best_resource(request: Request, db: Session) -> Resource | None:
@@ -112,11 +74,8 @@ class AllocationService:
         """Allocate a single request to best available resource"""
         allocation_logger.info(f"📋 Allocating request {request.request_id}...")
 
-        # Get allocation rules
-        rules = db.query(AllocationRule).filter(AllocationRule.is_active == True).all()
-
         # Calculate priority
-        priority_score = AllocationService.calculate_priority(request, rules, db)
+        priority_score = AllocationService.calculate_priority(request, db)
 
         # Find best resource
         resource = AllocationService.find_best_resource(request, db)
@@ -167,13 +126,10 @@ class AllocationService:
             f"🔄 Starting batch allocation: {len(pending)} pending requests"
         )
 
-        # Get rules for priority calculation
-        rules = db.query(AllocationRule).filter(AllocationRule.is_active == True).all()
-
         # Calculate priorities and sort
         requests_with_priority = []
         for req in pending:
-            priority = AllocationService.calculate_priority(req, rules, db)
+            priority = AllocationService.calculate_priority(req, db)
             requests_with_priority.append((req, priority))
 
         # Sort by priority (highest first)
